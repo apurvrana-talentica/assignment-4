@@ -1,0 +1,32 @@
+local kong = kong
+local ngx = ngx
+
+local CustomPlugin = {
+  PRIORITY = 1000,
+  VERSION = "0.1.0"
+}
+
+function CustomPlugin:access(conf)
+  -- Generate a unique request ID if not present
+  local request_id = ngx.var.http_x_request_id or kong.tools.utils.uuid()
+  
+  -- Set the X-Request-Id header for both request and response
+  kong.service.request.set_header("X-Request-Id", request_id)
+  kong.response.set_header("X-Request-Id", request_id)
+  
+  -- Log structured request information
+  local log_data = {
+    timestamp = ngx.now(),
+    request_id = request_id,
+    method = kong.request.get_method(),
+    path = kong.request.get_path(),
+    client_ip = kong.client.get_ip(),
+    user_agent = kong.request.get_header("user-agent") or "unknown",
+    host = kong.request.get_header("host") or "unknown"
+  }
+  
+  -- Emit structured JSON log
+  kong.log.info("Request processed: ", kong.tools.json.encode(log_data))
+end
+
+return CustomPlugin

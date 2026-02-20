@@ -1,0 +1,54 @@
+kong:
+  image:
+    repository: kong
+    tag: "3.6"
+    
+  ingressController:
+    enabled: true
+    image:
+      repository: kong/kubernetes-ingress-controller
+      tag: "3.1"
+    installCRDs: false
+    
+  env:
+    prefix: /kong_prefix/
+    database: "off"
+    plugins: "bundled"
+    
+  proxy:
+    enabled: true
+    type: ClusterIP
+    http:
+      enabled: true
+      servicePort: 80
+      containerPort: 8000
+    tls:
+      enabled: false
+      
+  admin:
+    enabled: true
+    type: ClusterIP
+    http:
+      enabled: true
+      servicePort: 8001
+      containerPort: 8001
+
+rateLimiting:
+  requestsPerMinute: 10
+
+ipAllowlist:
+  - "127.0.0.0/8"    # Localhost
+  - "10.0.0.0/8"     # Private network (Class A)
+  - "172.16.0.0/12"  # Private network (Class B)
+  - "192.168.0.0/16" # Private network (Class C)
+  # Add your specific IP ranges here
+  # - "203.0.113.0/24"  # Example: Your office network
+  # - "198.51.100.0/24" # Example: Your home network
+
+# Consumer configuration for JWT
+consumer:
+  username: "api-consumer"
+
+# JWT configuration (externalized - passed via --set or environment variable at deploy time)
+jwt:
+  secret: ""

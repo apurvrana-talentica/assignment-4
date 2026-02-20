@@ -1,0 +1,42 @@
+---
+# Additional ClusterRole rules for Kong Ingress Controller
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kong-gateway-kong-additional-permissions
+  labels:
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/instance: kong-gateway
+    app.kubernetes.io/managed-by: Helm
+rules:
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["apiextensions.k8s.io"]
+  resources: ["customresourcedefinitions"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["configuration.konghq.com"]
+  resources: ["kongconsumergroups"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+
+---
+# ClusterRoleBinding to bind additional permissions to Kong service account
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kong-gateway-kong-additional-permissions
+  labels:
+    app.kubernetes.io/name: kong
+    app.kubernetes.io/instance: kong-gateway
+    app.kubernetes.io/managed-by: Helm
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kong-gateway-kong-additional-permissions
+subjects:
+- kind: ServiceAccount
+  name: kong-gateway-kong
+  namespace: kong

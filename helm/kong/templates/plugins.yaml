@@ -1,0 +1,46 @@
+# JWT Plugin for protected routes
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: jwt-auth
+  namespace: kong
+config:
+  secret_is_base64: false
+  # Use the consumer key as the JWT issuer identifier
+  key_claim_name: iss
+  # Verify token expiration
+  claims_to_verify: ["exp"]
+plugin: jwt
+---
+# Rate Limiting Plugin
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: rate-limiting
+  namespace: kong
+config:
+  minute: {{ .Values.rateLimiting.requestsPerMinute }}
+  policy: local
+plugin: rate-limiting
+---
+# IP Restriction Plugin - Global allowlist
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: ip-restriction
+  namespace: kong
+config:
+  allow: 
+  {{- range .Values.ipAllowlist }}
+    - {{ . | quote }}
+  {{- end }}
+plugin: ip-restriction
+---
+# Custom Plugin
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: custom-plugin
+  namespace: kong
+config: {}
+plugin: custom

@@ -1,0 +1,10 @@
+apiVersion: v2
+name: kong-gateway
+description: Kong Gateway with Ingress Controller and custom configurations
+type: application
+version: 0.1.0
+appVersion: "3.6.0"
+dependencies:
+  - name: kong
+    version: "2.38.0"
+    repository: "https://charts.konghq.com"

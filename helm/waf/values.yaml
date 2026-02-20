@@ -1,0 +1,38 @@
+# NGINX Ingress Controller configuration with ModSecurity
+ingress-nginx:
+  controller:
+    # Enable ModSecurity
+    config:
+      enable-modsecurity: "true"
+      enable-owasp-modsecurity-crs: "true"
+      modsecurity-snippet: |
+        SecRuleEngine On
+        SecRequestBodyAccess On
+        SecAuditEngine RelevantOnly
+        SecAuditLogParts ABIJDEFHZ
+        SecAuditLog /var/log/modsec_audit.log
+        # Custom rules can be added here
+        
+    # Service configuration for Minikube
+    service:
+      type: NodePort
+      nodePorts:
+        http: 30080  # Main API port - all traffic through WAF
+        https: 30443
+        
+    # Resources
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1Gi
+      requests:
+        cpu: 500m
+        memory: 512Mi
+        
+    # Enable metrics
+    metrics:
+      enabled: true
+      
+    # Additional configurations
+    extraArgs:
+      enable-ssl-passthrough: true

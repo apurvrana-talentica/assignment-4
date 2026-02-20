@@ -1,0 +1,64 @@
+# Ingress for protected routes (requires JWT)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-service-protected
+  namespace: kong
+  annotations:
+    konghq.com/plugins: rate-limiting,ip-restriction,jwt-auth
+spec:
+  ingressClassName: kong
+  rules:
+  - host: api.local
+    http:
+      paths:
+      - path: /users
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service-external
+            port:
+              number: 8000
+---
+# Ingress for public routes (no JWT required)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: user-service-public
+  namespace: kong
+  annotations:
+    konghq.com/plugins: rate-limiting,ip-restriction
+spec:
+  ingressClassName: kong
+  rules:
+  - host: api.local
+    http:
+      paths:
+      - path: /health
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service-external
+            port:
+              number: 8000
+      - path: /verify
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service-external
+            port:
+              number: 8000
+      - path: /login
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service-external
+            port:
+              number: 8000
+      - path: /login
+        pathType: Prefix
+        backend:
+          service:
+            name: user-service-external
+            port:
+              number: 8000

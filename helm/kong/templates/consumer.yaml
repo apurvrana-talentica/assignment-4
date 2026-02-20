@@ -1,0 +1,24 @@
+apiVersion: configuration.konghq.com/v1
+kind: KongConsumer
+metadata:
+  name: {{ .Values.consumer.username }}
+  namespace: kong
+  annotations:
+    kubernetes.io/ingress.class: kong
+username: {{ .Values.consumer.username }}
+credentials:
+  - {{ .Values.consumer.username }}-jwt-credential
+---
+# JWT Credential Secret for the consumer (KIC v3 uses konghq.com/credential label)
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.consumer.username }}-jwt-credential
+  namespace: kong
+  labels:
+    konghq.com/credential: jwt
+type: Opaque
+stringData:
+  key: {{ .Values.consumer.username }}
+  algorithm: HS256
+  secret: {{ .Values.jwt.secret }}
